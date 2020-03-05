@@ -1,0 +1,116 @@
+enable
+configure terminal 
+hostname RT3
+banner motd "                                                                                    
+                                                                                                            
+                                                                                                            
+   SSSSSSSSSSSSSSS EEEEEEEEEEEEEEEEEEEEEENNNNNNNN        NNNNNNNN               AAA               IIIIIIIIII
+ SS:::::::::::::::SE::::::::::::::::::::EN:::::::N       N::::::N              A:::A              I::::::::I
+S:::::SSSSSS::::::SE::::::::::::::::::::EN::::::::N      N::::::N             A:::::A             I::::::::I
+S:::::S     SSSSSSSEE::::::EEEEEEEEE::::EN:::::::::N     N::::::N            A:::::::A            II::::::II
+S:::::S              E:::::E       EEEEEEN::::::::::N    N::::::N           A:::::::::A             I::::I  
+S:::::S              E:::::E             N:::::::::::N   N::::::N          A:::::A:::::A            I::::I  
+ S::::SSSS           E::::::EEEEEEEEEE   N:::::::N::::N  N::::::N         A:::::A A:::::A           I::::I  
+  SS::::::SSSSS      E:::::::::::::::E   N::::::N N::::N N::::::N        A:::::A   A:::::A          I::::I  
+    SSS::::::::SS    E:::::::::::::::E   N::::::N  N::::N:::::::N       A:::::A     A:::::A         I::::I  
+       SSSSSS::::S   E::::::EEEEEEEEEE   N::::::N   N:::::::::::N      A:::::AAAAAAAAA:::::A        I::::I  
+            S:::::S  E:::::E             N::::::N    N::::::::::N     A:::::::::::::::::::::A       I::::I  
+            S:::::S  E:::::E       EEEEEEN::::::N     N:::::::::N    A:::::AAAAAAAAAAAAA:::::A      I::::I  
+SSSSSSS     S:::::SEE::::::EEEEEEEE:::::EN::::::N      N::::::::N   A:::::A             A:::::A   II::::::II
+S::::::SSSSSS:::::SE::::::::::::::::::::EN::::::N       N:::::::N  A:::::A               A:::::A  I::::::::I
+S:::::::::::::::SS E::::::::::::::::::::EN::::::N        N::::::N A:::::A                 A:::::A I::::::::I
+ SSSSSSSSSSSSSSS   EEEEEEEEEEEEEEEEEEEEEENNNNNNNN         NNNNNNNAAAAAAA                   AAAAAAAIIIIIIIIII
+ ''
+enable secret cisco
+ip domain-name Senai.local                    
+crypto key generate rsa general-keys modulus 1024
+interface giga 0/0
+ip address 158.236.221.18 255.255.255.252
+description RT4/RT3
+no shutdown
+exit 
+interface giga 0/1
+no shutdown
+exit
+!
+int giga 0/1.11
+encapsulation dot1q 11
+ip address 10.128.15.1 255.255.255.0
+description SUBINT VLAN 11
+!
+exit
+int giga 0/1.12
+encapsulation dot1q 12
+ip address 10.128.18.225 255.255.255.240
+description SUBINT VLAN 12
+!
+exit
+int giga 0/1.13
+encapsulation dot1q 13
+ip address 10.128.12.1 255.255.254.0
+description SUBINT VLAN 13
+!
+exit
+int giga 0/1.14
+encapsulation dot1q 14
+ip address 10.128.18.193 255.255.255.224
+description SUBINT VLAN 14
+!
+exit
+int giga 0/1.15
+encapsulation dot1q 15
+ip address 10.128.8.1 255.255.252.0
+description SUBINT VLAN 15
+!
+exit
+int giga 0/1.16
+encapsulation dot1q 16
+ip address 10.128.4.1 255.255.252.0
+description SUBINT VLAN 16
+!
+int giga 0/1.100 
+encapsulation dot1q 100
+ip address 10.128.18.242 255.255.255.240
+description VLAN DE EQUIPAMENTOS 
+exit
+line console 0
+password cisco
+login
+exit
+line vty 0 15
+password cisco
+transport input ssh 
+exec-timeout 10
+login
+exit
+username cisco privilage 15 secret cisco
+login block-for 60 attempts 3 within 60 
+service password-encryption
+do wr
+router rip 
+version 2 
+network 158.236.221.16
+network 10.128.15.0
+network 10.128.18.224
+network 10.128.12.0
+network 10.128.18.192
+network 10.128.8.0
+network 10.128.4.0
+network 10.128.18.240
+no auto-summary
+passive-interface default 
+no passive-interface giga 0/0
+ip route 0.0.0.0 0.0.0.0 158.236.221.17
+no cdp run 
+int giga 0/0
+cdp enable 
+do wr 
+exit 
+int giga 0/1
+cdp enable 
+do wr 
+exit 
+
+
+
+
