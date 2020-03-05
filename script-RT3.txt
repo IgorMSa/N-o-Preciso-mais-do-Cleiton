@@ -1,0 +1,76 @@
+enable
+configure terminal
+hostname RT3
+enable secret cisco
+ip domain-name sprint2.local
+crypto key generate rsa general-keys modulus 1024
+username cisco privilege 15 secret cisco
+banner motd "                                                                                                            
+                                                                                                            
+   SSSSSSSSSSSSSSS EEEEEEEEEEEEEEEEEEEEEENNNNNNNN        NNNNNNNN               AAA               IIIIIIIIII
+ SS:::::::::::::::SE::::::::::::::::::::EN:::::::N       N::::::N              A:::A              I::::::::I
+S:::::SSSSSS::::::SE::::::::::::::::::::EN::::::::N      N::::::N             A:::::A             I::::::::I
+S:::::S     SSSSSSSEE::::::EEEEEEEEE::::EN:::::::::N     N::::::N            A:::::::A            II::::::II
+S:::::S              E:::::E       EEEEEEN::::::::::N    N::::::N           A:::::::::A             I::::I  
+S:::::S              E:::::E             N:::::::::::N   N::::::N          A:::::A:::::A            I::::I  
+ S::::SSSS           E::::::EEEEEEEEEE   N:::::::N::::N  N::::::N         A:::::A A:::::A           I::::I  
+  SS::::::SSSSS      E:::::::::::::::E   N::::::N N::::N N::::::N        A:::::A   A:::::A          I::::I  
+    SSS::::::::SS    E:::::::::::::::E   N::::::N  N::::N:::::::N       A:::::A     A:::::A         I::::I  
+       SSSSSS::::S   E::::::EEEEEEEEEE   N::::::N   N:::::::::::N      A:::::AAAAAAAAA:::::A        I::::I  
+            S:::::S  E:::::E             N::::::N    N::::::::::N     A:::::::::::::::::::::A       I::::I  
+            S:::::S  E:::::E       EEEEEEN::::::N     N:::::::::N    A:::::AAAAAAAAAAAAA:::::A      I::::I  
+SSSSSSS     S:::::SEE::::::EEEEEEEE:::::EN::::::N      N::::::::N   A:::::A             A:::::A   II::::::II
+S::::::SSSSSS:::::SE::::::::::::::::::::EN::::::N       N:::::::N  A:::::A               A:::::A  I::::::::I
+S:::::::::::::::SS E::::::::::::::::::::EN::::::N        N::::::N A:::::A                 A:::::A I::::::::I
+ SSSSSSSSSSSSSSS   EEEEEEEEEEEEEEEEEEEEEENNNNNNNN         NNNNNNNAAAAAAA                   AAAAAAAIIIIIIIIII
+ "
+line console 0
+password cisco
+login local
+exit
+line vty 0 15
+transport input ssh
+exec-timeout 5
+login local
+exit
+login block-for 240 attempts 7 within 600
+service password-encryption
+int g0/1
+ip address 187.201.167.14 255.255.255.252
+description interface_para_RT2
+no shutdown
+int g0/0
+ip address 158.236.221.17 255.255.255.252
+description interface_para_RT4
+no shutdown
+exit
+line vty 0 15
+transport input ssh
+exec-timeout 5
+login local
+exit
+login block-for 240 attempts 7 within 600
+service password-encryption
+int g0/1
+description interface_para_RT2
+no shutdown
+int g0/0
+description interface_para_RT4
+no shutdown
+exit
+cdp run
+int g0/2
+no cdp run
+ip route 0.0.0.0 0.0.0.0 187.201.167.13
+ip route 0.0.0.0 0.0.0.0 158.236.221.18
+router rip
+version 2
+no auto-summary
+passive-interface default
+no passive-interface g0/0
+network 158.236.221.16
+exit
+router bgp 65001
+neighbor 187.201.167.14 remote-as 65000
+network 187.201.167.12 mask 255.255.255.252
+
